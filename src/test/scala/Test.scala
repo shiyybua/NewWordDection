@@ -3,7 +3,7 @@
   */
 object Test{
   def main(args: Array[String]): Unit = {
-    val str = "这是一行中文".substring(-1,0)
-    println(str.length)
+    val x = "中"
+    println(x.substring(1,1))
   }
 }
