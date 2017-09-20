@@ -1,6 +1,5 @@
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import scala.collection.mutable.Map
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -12,7 +11,7 @@ class DataReader extends Serializable{
   /*
     用递归获取一个字符串的子字符串：
       input：ABC
-      output：ABC AB A
+      output：[(ABC,l,r) (AB,l,r) (A,l,r)]
    */
   private def getSubStrings(element: String, left: String, veryRight: String): List[Tuple3[String, String, String]] ={
     val listBuffer = ListBuffer[Tuple3[String, String, String]]()
@@ -33,8 +32,8 @@ class DataReader extends Serializable{
   /*
     调用则函数的前提是参数element小于等于NGram的window
     用递归获取一个字符串的子字符串：
-      input：ABC
-      output：A B C AB BC ABC (顺序不重要)
+      input：ABC, l, r
+      output：[(A,l,r) (B,l,r) (C,l,r) (AB,l,r) (BC,l,r) (ABC,l,r)] (顺序不重要)
    */
   private def getNeighbors(element: String, left: String, right: String): List[Tuple3[String, String, String]] ={
     val listBuffer = ListBuffer[Tuple3[String, String, String]]()
@@ -87,10 +86,19 @@ class DataReader extends Serializable{
     allWords
   }
 
-//  def read(sc: SparkContext, maxGram: Int): RDD[(String, Int)] ={
-//    val line = sc.textFile(DATAPATH)
-//    line.flatMap(x => getNGram(x, maxGram)).map((_, 1)).reduceByKey(_ + _)
-//  }
+  def read(sc: SparkContext, maxGram: Int): RDD[(String, Iterable[(String, String, String)])] ={
+    val line = sc.textFile(DATAPATH)
+    // 1. 把停用词，标点用空格替换。
+    // 2. 把原来的句子根据空格分开，这样后面取“左右词”的时候就不会被空格影响。
+    // 3. 去掉为空的句子
+    // 4. 调用方法取Ngram的词
+    line.map { x =>
+      val x_filter = x.replaceAll("[" + UtilsTools.STOPWORDS + "]", " ").replaceAll("\\p{Punct}", " ").replaceAll("\\pP", " ")
+        .replaceAll("　", " ").replaceAll("\\p{Blank}", " ").replaceAll("\\p{Space}", " ").replaceAll("\\p{Cntrl}", " ")
+      x_filter
+    }.flatMap(x => x.split(" ")).filter(x => x.length>0).flatMap(x => getNGram(x, maxGram)).keyBy(_._1).groupByKey
+
+  }
 
   def length(maxGram: Int): List[Tuple3[String, String, String]] ={
     getNGram("你好吗", maxGram)

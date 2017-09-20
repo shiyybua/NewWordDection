@@ -17,13 +17,13 @@ object Main{
   }
 
   def runMain: Unit ={
-//    val sc = connectionBuilder
+    val sc = connectionBuilder
     var dataReader = new DataReader()
-//    dataReader.read(sc, 3).collect().foreach(println)
-    val result = dataReader.length(3)
-    for(x <- result){
-      println(x)
-    }
+    dataReader.read(sc, 5).collect().foreach(println)
+//    val result = dataReader.length(3)
+//    for(x <- result){
+//      println(x)
+//    }
 
   }
 
