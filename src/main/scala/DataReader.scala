@@ -1,12 +1,13 @@
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Map
 
 /**
   * Created by cai on 9/18/17.
   */
-class DataReader extends Serializable{
-  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/answer_dev.txt"
+class DataOperator extends Serializable{
+  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/test.txt"
 
   /*
     用递归获取一个字符串的子字符串：
@@ -58,7 +59,6 @@ class DataReader extends Serializable{
     listBuffer.toList
   }
 
-
   /*
     根据Ngram中N的大小取出
    */
@@ -73,7 +73,7 @@ class DataReader extends Serializable{
       if(i > 0)
         left = sentence(i-1).toString
       if(i + maxGram + 1 < sentence.length)
-        right = sentence(i + 1).toString
+        right = sentence(i + maxGram).toString
       allWords = allWords ::: getSubStrings(sentence.substring(i, i + maxGram), left, right)
     }
     // 解决余数
@@ -86,7 +86,7 @@ class DataReader extends Serializable{
     allWords
   }
 
-  def read(sc: SparkContext, maxGram: Int): RDD[(String, Iterable[(String, String, String)])] ={
+  def getWordNeighborPairs(sc: SparkContext, maxGram: Int): RDD[(String, Iterable[(String, String, String)])] ={
     val line = sc.textFile(DATAPATH)
     // 1. 把停用词，标点用空格替换。
     // 2. 把原来的句子根据空格分开，这样后面取“左右词”的时候就不会被空格影响。
@@ -97,6 +97,33 @@ class DataReader extends Serializable{
         .replaceAll("　", " ").replaceAll("\\p{Blank}", " ").replaceAll("\\p{Space}", " ").replaceAll("\\p{Cntrl}", " ")
       x_filter
     }.flatMap(x => x.split(" ")).filter(x => x.length>0).flatMap(x => getNGram(x, maxGram)).keyBy(_._1).groupByKey
+
+  }
+
+  /*
+    wordContent: (word, Iterable[(word, left1, right1),(word, left2, right2), ...])
+   */
+  def wordEntropy(wordContent: (String, Iterable[(String, String, String)])): Unit ={
+    val keyWord = wordContent._1
+    val neighbors = wordContent._2.toList
+
+    // 统计词频
+    val wordFrq = neighbors.length
+    // 左熵
+    var leftEntropy = 0.0
+    var rightEntropy = 0.0
+    val leftMap = Map[String, Int]()
+    val rightMap = Map[String, Int]()
+    for (x <- neighbors){
+      val leftWord = x._2
+      val rigthWord = x._3
+
+      leftMap(leftWord) = if(leftMap.contains(leftWord)) leftMap(leftWord) + 1 else 1
+      rightMap(rigthWord) = if(rightMap.contains(rigthWord)) rightMap(rigthWord) + 1 else 1
+
+
+    }
+
 
   }
 

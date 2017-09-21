@@ -18,8 +18,19 @@ object Main{
 
   def runMain: Unit ={
     val sc = connectionBuilder
-    var dataReader = new DataReader()
-    dataReader.read(sc, 5).collect().foreach(println)
+    var dataOperator = new DataOperator()
+    val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, 2).map(x =>dataOperator.wordEntropy(x))
+
+
+
+    wordNeighborPairs.collect().foreach(println)
+//    println(wordNeighborPairs.lookup("中国酒店"))
+//    println(wordNeighborPairs.lookup("薇薇"))
+//    val x = wordNeighborPairs.lookup("薇薇").toList(0)
+//    println(x.toList.length)
+//    for(a <- x.mapValues(iter => iter.map(_._2).toArray))
+//      println(a)
+//    dataReader.read(sc, 5).collect().foreach(println)
 //    val result = dataReader.length(3)
 //    for(x <- result){
 //      println(x)
