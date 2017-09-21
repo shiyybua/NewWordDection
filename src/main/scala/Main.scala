@@ -15,11 +15,12 @@ object Main{
     val sc = new SparkContext(conf)
     return sc
   }
-
+  // TODO: 去掉前后空格
   def runMain: Unit ={
     val sc = connectionBuilder
     var dataOperator = new DataOperator()
     val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, 2).map(x =>dataOperator.wordEntropy(x))
+          .cache()
 
 
 

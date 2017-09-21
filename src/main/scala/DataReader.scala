@@ -46,8 +46,9 @@ class DataOperator extends Serializable{
         for(i <- 0 to element.length - iter) {
           if(i > 0)
             localLeft = element(i - 1).toString
-          if(i + 1 < element.length)
+          if(i + 1 < element.length - 1)
             localRight = element(i + 1).toString
+//            localRight = "))))"
           listBuffer.append((element.substring(i, i + iter), localLeft, localRight))
         }
 
@@ -67,16 +68,19 @@ class DataOperator extends Serializable{
     assert(sentence.length > 0)
     assert(maxGram > 1)
 
-    var left = ""
-    var right = ""
+
     for(i <- 0 to sentence.length - maxGram){
+      var left = ""
+      var right = ""
       if(i > 0)
         left = sentence(i-1).toString
       if(i + maxGram + 1 < sentence.length)
-        right = sentence(i + maxGram).toString
+        right = sentence(i + maxGram + 1).toString
+      else
+        println("ajsfhkjsdfhkldshjfl")
       allWords = allWords ::: getSubStrings(sentence.substring(i, i + maxGram), left, right)
     }
-    // 解决余数
+    // 解决余数 哪呢
     if(sentence.length - maxGram < 0)
       allWords = allWords ::: getNeighbors(sentence, "", "")
     else if(sentence.length - maxGram >= 0)
@@ -103,35 +107,52 @@ class DataOperator extends Serializable{
   /*
     wordContent: (word, Iterable[(word, left1, right1),(word, left2, right2), ...])
    */
-  def wordEntropy(wordContent: (String, Iterable[(String, String, String)])): Unit ={
+  def wordEntropy(wordContent: (String, Iterable[(String, String, String)])):
+        (String, Tuple5[Int, Double, Double, List[String], List[String]]) ={
     val keyWord = wordContent._1
     val neighbors = wordContent._2.toList
 
     // 统计词频
     val wordFrq = neighbors.length
-    // 左熵
     var leftEntropy = 0.0
     var rightEntropy = 0.0
+    var totalLeftWordNumber = 0.0
+    var totalRightWordNumber = 0.0
     val leftMap = Map[String, Int]()
     val rightMap = Map[String, Int]()
+    val leftWords = ListBuffer[String]()
+    val rightWords = ListBuffer[String]()
+
     for (x <- neighbors){
       val leftWord = x._2
-      val rigthWord = x._3
+      val rightWord = x._3
+      println(x._1 + " " + x._2 + " " + x._3)
 
-      leftMap(leftWord) = if(leftMap.contains(leftWord)) leftMap(leftWord) + 1 else 1
-      rightMap(rigthWord) = if(rightMap.contains(rigthWord)) rightMap(rigthWord) + 1 else 1
+      if(leftWord != "") {
+        leftMap(leftWord) = if(leftMap.contains(leftWord)) leftMap(leftWord) + 1 else 1
+        totalLeftWordNumber += 1
+      }
 
-
+      if(rightWord != "") {
+        rightMap(rightWord) = if(rightMap.contains(rightWord)) rightMap(rightWord) + 1 else 1
+        totalRightWordNumber += 1
+      }
+    }
+    // 计算左熵
+    for((word, frq) <- leftMap){
+      val prob = 1.0 * frq / totalLeftWordNumber
+      leftEntropy -= (prob * math.log(prob))
+      leftWords.append(word)
     }
 
+    // 计算右熵
+    for((word, frq) <- rightMap){
+      val prob = 1.0 * frq / totalRightWordNumber
+      rightEntropy -= (prob * math.log(prob))
+      rightWords.append(word)
+    }
 
+    (keyWord, (wordFrq, leftEntropy, rightEntropy, leftWords.toList, rightWords.toList))
   }
-
-  def length(maxGram: Int): List[Tuple3[String, String, String]] ={
-    getNGram("你好吗", maxGram)
-//    getNeighbors("你好吗")
-//    getNeighbors("你好吗","嗨","?")
-  }
-
 
 }

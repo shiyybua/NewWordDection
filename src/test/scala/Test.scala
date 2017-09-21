@@ -7,11 +7,9 @@ import scala.collection.mutable.Map
   */
 object Test{
   def main(args: Array[String]): Unit = {
-    val treasureMap = Map[Int, String]()
-    treasureMap += (1 -> "test")
-    treasureMap(2) = "666"
-    println(treasureMap.contains(2))
-    println(treasureMap(2))
+    val a = 3
+    val b = 10
+    println(a*math.log(1.0*a/b))
 
   }
 }
