@@ -15,16 +15,14 @@ object Main{
     val sc = new SparkContext(conf)
     return sc
   }
-  // TODO: 去掉前后空格
+
   def runMain: Unit ={
     val sc = connectionBuilder
     var dataOperator = new DataOperator()
-    val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, 2).map(x =>dataOperator.wordEntropy(x))
+    val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, 3).map(x =>dataOperator.wordEntropy(x))
           .cache()
 
-
-
-    wordNeighborPairs.collect().foreach(println)
+    wordNeighborPairs.collect().foreach(x => dataOperator.getTFByWord(x._1, wordNeighborPairs))
 //    println(wordNeighborPairs.lookup("中国酒店"))
 //    println(wordNeighborPairs.lookup("薇薇"))
 //    val x = wordNeighborPairs.lookup("薇薇").toList(0)

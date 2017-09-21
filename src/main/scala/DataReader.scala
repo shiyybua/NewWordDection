@@ -76,8 +76,7 @@ class DataOperator extends Serializable{
         left = sentence(i-1).toString
       if(i + maxGram + 1 < sentence.length)
         right = sentence(i + maxGram + 1).toString
-      else
-        println("ajsfhkjsdfhkldshjfl")
+
       allWords = allWords ::: getSubStrings(sentence.substring(i, i + maxGram), left, right)
     }
     // 解决余数 哪呢
@@ -97,7 +96,7 @@ class DataOperator extends Serializable{
     // 3. 去掉为空的句子
     // 4. 调用方法取Ngram的词
     line.map { x =>
-      val x_filter = x.replaceAll("[" + UtilsTools.STOPWORDS + "]", " ").replaceAll("\\p{Punct}", " ").replaceAll("\\pP", " ")
+      val x_filter = x.trim.replaceAll("[" + UtilsTools.STOPWORDS + "]", " ").replaceAll("\\p{Punct}", " ").replaceAll("\\pP", " ")
         .replaceAll("　", " ").replaceAll("\\p{Blank}", " ").replaceAll("\\p{Space}", " ").replaceAll("\\p{Cntrl}", " ")
       x_filter
     }.flatMap(x => x.split(" ")).filter(x => x.length>0).flatMap(x => getNGram(x, maxGram)).keyBy(_._1).groupByKey
@@ -126,7 +125,6 @@ class DataOperator extends Serializable{
     for (x <- neighbors){
       val leftWord = x._2
       val rightWord = x._3
-      println(x._1 + " " + x._2 + " " + x._3)
 
       if(leftWord != "") {
         leftMap(leftWord) = if(leftMap.contains(leftWord)) leftMap(leftWord) + 1 else 1
@@ -153,6 +151,11 @@ class DataOperator extends Serializable{
     }
 
     (keyWord, (wordFrq, leftEntropy, rightEntropy, leftWords.toList, rightWords.toList))
+  }
+
+  def getTFByWord(word: String,  wordContent:
+      RDD[(String, Tuple5[Int, Double, Double, List[String], List[String]])]): Unit ={
+    println(wordContent.lookup(word))
   }
 
 }
