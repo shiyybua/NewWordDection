@@ -48,7 +48,6 @@ class DataOperator extends Serializable{
             localLeft = element(i - 1).toString
           if(i + 1 < element.length - 1)
             localRight = element(i + 1).toString
-//            localRight = "))))"
           listBuffer.append((element.substring(i, i + iter), localLeft, localRight))
         }
 
@@ -153,9 +152,28 @@ class DataOperator extends Serializable{
     (keyWord, (wordFrq, leftEntropy, rightEntropy, leftWords.toList, rightWords.toList))
   }
 
-  def getTFByWord(word: String,  wordContent:
-      RDD[(String, Tuple5[Int, Double, Double, List[String], List[String]])]): Unit ={
-    println(wordContent.lookup(word))
+  // word: (word, (tf, leftEntropy, rightEntropy, leftNeighbors, rightNeighbors))
+  def getTFByWord(word: (String, Tuple5[Int, Double, Double, List[String], List[String]]),
+                  lookup: Map[String, Tuple3[Int, Double, Double]]): List[(String, Double)] ={
+    val wordBody = word._1
+    val leftNeighbors = word._2._4
+    val rightNeighbors = word._2._5
+    val candidates = ListBuffer[Tuple2[String, Double]]()
+
+    for(leftWord <- leftNeighbors){
+      val candidate = leftWord + wordBody
+      val candidate_info = lookup(candidate)
+      val leftWord_info = lookup(leftWord)
+      val wordBody_info = lookup(wordBody)
+
+      val PMI = 1.0 * candidate_info._1 / (leftWord_info._1 * wordBody_info._1)
+      val leftEntropy = candidate_info._2
+      val rightEntropy = candidate_info._3
+      val score = PMI + leftEntropy + rightEntropy
+      candidates.append((candidate, score))
+    }
+
+    candidates.toList
   }
 
 }

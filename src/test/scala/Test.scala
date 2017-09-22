@@ -7,9 +7,11 @@ import scala.collection.mutable.Map
   */
 object Test{
   def main(args: Array[String]): Unit = {
-    val a = 3
-    val b = 10
-    println(a*math.log(1.0*a/b))
+    val a = "a"
+    val b = "b"
+    val c= a + b
+    println(c)
+    println(c.length)
 
   }
 }
