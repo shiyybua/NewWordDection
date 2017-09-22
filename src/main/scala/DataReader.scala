@@ -154,11 +154,11 @@ class DataOperator extends Serializable{
 
   // word: (word, (tf, leftEntropy, rightEntropy, leftNeighbors, rightNeighbors))
   def getTFByWord(word: (String, Tuple5[Int, Double, Double, List[String], List[String]]),
-                  lookup: Map[String, Tuple3[Int, Double, Double]]): List[(String, Double)] ={
+                  lookup: Map[String, Tuple3[Int, Double, Double]]): List[(String, Double, Double, Double)] ={
     val wordBody = word._1
     val leftNeighbors = word._2._4
     val rightNeighbors = word._2._5
-    val candidates = ListBuffer[Tuple2[String, Double]]()
+    val candidates = ListBuffer[Tuple4[String, Double, Double, Double]]()
 
     for(leftWord <- leftNeighbors){
       val candidate = leftWord + wordBody
@@ -170,12 +170,29 @@ class DataOperator extends Serializable{
       val leftEntropy = candidate_info._2
       val rightEntropy = candidate_info._3
 //      val score = PMI + leftEntropy + rightEntropy
-      val score = PMI
-      println(PMI + " " + leftEntropy + " " + rightEntropy)
-      candidates.append((candidate, score))
+//      val score = PMI
+//      println(PMI + " " + leftEntropy + " " + rightEntropy)
+      candidates.append((candidate, PMI, leftEntropy, rightEntropy))
     }
-
     candidates.toList
   }
 
+  def normalization(wordInfo: (String, Double, Double, Double),
+                    PMIMax: Double, PMIMin: Double,
+                    leftEntropyMax: Double, leftEntropyMin: Double,
+                    rightEntropyMax: Double, rightEntropyMin: Double): Tuple2[String, Double] ={
+
+    def normalizationFunc(self: Double, max: Double, min: Double): Double={
+      if(max == min)
+        self
+      else
+        (self - min) / (max - min)
+    }
+
+    val PMI = normalizationFunc(wordInfo._2, PMIMax, PMIMin)
+    val leftEntropy = normalizationFunc(wordInfo._3, leftEntropyMax, leftEntropyMin)
+    val rightEntropy = normalizationFunc(wordInfo._4, rightEntropyMax, rightEntropyMin)
+
+    (wordInfo._1, PMI + leftEntropy + rightEntropy)
+  }
 }

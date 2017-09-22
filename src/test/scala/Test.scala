@@ -13,7 +13,7 @@ object Test{
     val a = Array(("a",1,"qa"), ("b",2,"qa"), ("c",8,"qa"), ("d",3,"qa"))
     val b = sc.parallelize(a)
 
-    val maxKey2 = b.max()(new Ordering[Tuple3[String, Int, String]]() {
+    val maxKey2 = b.min()(new Ordering[Tuple3[String, Int, String]]() {
       override def compare(x: (String, Int, String), y: (String, Int, String)): Int =
         Ordering[Int].compare(x._2, y._2)
     })

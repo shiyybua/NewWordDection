@@ -25,10 +25,19 @@ object Main{
     val wordNeighborPairsCollection = wordNeighborPairs.collect
     val lookup = UtilsTools.convertKeyArray2MapTF(wordNeighborPairsCollection)
 //    wordNeighborPairs.collect().foreach(println)
-    wordNeighborPairs.filter(x => x._1.length < MAX_GRAM).flatMap(x => dataOperator.getTFByWord(x, lookup))
+    val wordInfo = wordNeighborPairs.filter(x => x._1.length < MAX_GRAM).flatMap(x => dataOperator.getTFByWord(x, lookup)).cache()
+    val PMIMax = UtilsTools.getMax(wordInfo,2)
+    val PMIMin = UtilsTools.getMin(wordInfo,2)
+
+    val leftEntropyMax = UtilsTools.getMax(wordInfo,3)
+    val leftEntropyMin = UtilsTools.getMin(wordInfo,3)
+
+    val rightEntropyMax = UtilsTools.getMax(wordInfo,4)
+    val rightEntropyMin = UtilsTools.getMin(wordInfo,4)
+
+    wordInfo.map(x => dataOperator.normalization(x, PMIMax, PMIMin,
+      leftEntropyMax, leftEntropyMin, rightEntropyMax, rightEntropyMin))
       .sortBy(x => x._2).collect().foreach(println)
-
-
   }
 
   def main(args: Array[String]): Unit = {
