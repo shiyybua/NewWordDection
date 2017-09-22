@@ -7,7 +7,7 @@ import scala.collection.mutable.Map
   * Created by cai on 9/18/17.
   */
 class DataOperator extends Serializable{
-  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/test.txt"
+  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/answer_dev.txt"
 
   /*
     用递归获取一个字符串的子字符串：
@@ -166,10 +166,12 @@ class DataOperator extends Serializable{
       val leftWord_info = lookup(leftWord)
       val wordBody_info = lookup(wordBody)
 
-      val PMI = 1.0 * candidate_info._1 / (leftWord_info._1 * wordBody_info._1)
+      val PMI = 1.0 * candidate_info._1 / (leftWord_info._1 * wordBody_info._1) //这里最大是１．
       val leftEntropy = candidate_info._2
       val rightEntropy = candidate_info._3
-      val score = PMI + leftEntropy + rightEntropy
+//      val score = PMI + leftEntropy + rightEntropy
+      val score = PMI
+      println(PMI + " " + leftEntropy + " " + rightEntropy)
       candidates.append((candidate, score))
     }
 

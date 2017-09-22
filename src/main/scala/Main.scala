@@ -17,26 +17,17 @@ object Main{
   }
 
   def runMain: Unit ={
-    val MAX_GRAM = 2
+    val MAX_GRAM = 4
     val sc = connectionBuilder
     var dataOperator = new DataOperator()
     // ＴＯＤＯ：max gram要比前面多２个
     val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, MAX_GRAM).map(x =>dataOperator.wordEntropy(x)).cache()
     val wordNeighborPairsCollection = wordNeighborPairs.collect
     val lookup = UtilsTools.convertKeyArray2MapTF(wordNeighborPairsCollection)
+//    wordNeighborPairs.collect().foreach(println)
+    wordNeighborPairs.filter(x => x._1.length < MAX_GRAM).flatMap(x => dataOperator.getTFByWord(x, lookup))
+      .sortBy(x => x._2).collect().foreach(println)
 
-    wordNeighborPairs.filter(x => x._1.length < MAX_GRAM).map(x => dataOperator.getTFByWord(x, lookup)).collect().foreach(println)
-//    println(wordNeighborPairs.lookup("中国酒店"))
-//    println(wordNeighborPairs.lookup("薇薇"))
-//    val x = wordNeighborPairs.lookup("薇薇").toList(0)
-//    println(x.toList.length)
-//    for(a <- x.mapValues(iter => iter.map(_._2).toArray))
-//      println(a)
-//    dataReader.read(sc, 5).collect().foreach(println)
-//    val result = dataReader.length(3)
-//    for(x <- result){
-//      println(x)
-//    }
 
   }
 
