@@ -7,7 +7,10 @@ import scala.collection.mutable.Map
   * Created by cai on 9/18/17.
   */
 class DataOperator extends Serializable{
-  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/answer_dev.txt"
+  val DATAPATH = UtilsTools.DATAPATH
+  val PMI_WEIGHT = UtilsTools.PMI_WEIGHT
+  val LEFT_ENTROPY_WEIGHT = UtilsTools.LEFT_ENTROPY_WEIGHT
+  val RIGHT_ENTROPY_WEIGHT = UtilsTools.RIGHT_ENTROPY_WEIGHT
 
   /*
     用递归获取一个字符串的子字符串：
@@ -159,19 +162,18 @@ class DataOperator extends Serializable{
     val leftNeighbors = word._2._4
     val rightNeighbors = word._2._5
     val candidates = ListBuffer[Tuple4[String, Double, Double, Double]]()
+    val wordBody_info = lookup(wordBody)
 
+    // 不需要算rightNeighbors，因为会重复！
     for(leftWord <- leftNeighbors){
       val candidate = leftWord + wordBody
       val candidate_info = lookup(candidate)
       val leftWord_info = lookup(leftWord)
-      val wordBody_info = lookup(wordBody)
 
-      val PMI = 1.0 * candidate_info._1 / (leftWord_info._1 * wordBody_info._1) //这里最大是１．
+      val PMI = 1.0 * candidate_info._1 / (leftWord_info._1 + wordBody_info._1) //这里最大是１．PMI公式改过！
       val leftEntropy = candidate_info._2
       val rightEntropy = candidate_info._3
-//      val score = PMI + leftEntropy + rightEntropy
-//      val score = PMI
-//      println(PMI + " " + leftEntropy + " " + rightEntropy)
+
       candidates.append((candidate, PMI, leftEntropy, rightEntropy))
     }
     candidates.toList
@@ -193,6 +195,6 @@ class DataOperator extends Serializable{
     val leftEntropy = normalizationFunc(wordInfo._3, leftEntropyMax, leftEntropyMin)
     val rightEntropy = normalizationFunc(wordInfo._4, rightEntropyMax, rightEntropyMin)
 
-    (wordInfo._1, PMI + leftEntropy + rightEntropy)
+    (wordInfo._1, PMI * PMI_WEIGHT + leftEntropy * LEFT_ENTROPY_WEIGHT + rightEntropy * RIGHT_ENTROPY_WEIGHT)
   }
 }

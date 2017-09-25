@@ -24,7 +24,6 @@ object Main{
     val wordNeighborPairs = dataOperator.getWordNeighborPairs(sc, MAX_GRAM).map(x =>dataOperator.wordEntropy(x)).cache()
     val wordNeighborPairsCollection = wordNeighborPairs.collect
     val lookup = UtilsTools.convertKeyArray2MapTF(wordNeighborPairsCollection)
-//    wordNeighborPairs.collect().foreach(println)
     val wordInfo = wordNeighborPairs.filter(x => x._1.length < MAX_GRAM).flatMap(x => dataOperator.getTFByWord(x, lookup)).cache()
     val PMIMax = UtilsTools.getMax(wordInfo,2)
     val PMIMin = UtilsTools.getMin(wordInfo,2)

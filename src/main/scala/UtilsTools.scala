@@ -8,6 +8,11 @@ import scala.collection.mutable.Map
 object UtilsTools{
   val STOPWORDS = "啊呢吗嘛哦呀"
   val PUNCTUATIONS = "。，！;：《》“”？,.!?;:"
+  val DATAPATH = "/home/cai/Desktop/cai/data/corpus/answer_dev.txt"
+  val PMI_WEIGHT = 1.0
+  val LEFT_ENTROPY_WEIGHT = 1.0
+  val RIGHT_ENTROPY_WEIGHT = 1.0
+
 
   def convertKeyArray2MapTF(arr: Array[(String, Tuple5[Int, Double, Double, List[String], List[String]])]):
     Map[String, Tuple3[Int, Double, Double]] ={
