@@ -10,8 +10,9 @@ object Main{
   def connectionBuilder: SparkContext ={
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
     Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF)
-
-    val conf = new SparkConf().setAppName("Simple Application").setMaster("local[*]")
+    // http://www.imooc.com/article/19861 勾选第２个
+//    val conf = new SparkConf().setAppName("Simple Application").setMaster("local[*]")
+    val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
     return sc
   }
